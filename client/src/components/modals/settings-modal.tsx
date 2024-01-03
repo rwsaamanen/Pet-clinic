@@ -11,7 +11,6 @@ export const SettingsModal = () => {
   if (!settings.isOpen) {
     return null;
   }
-  
 
   return (
     <Dialog open={settings.isOpen} onOpenChange={settings.onClose}>
@@ -27,7 +26,7 @@ export const SettingsModal = () => {
               Appearance
             </Label>
             <span className="text-[0.8rem] text-muted-foreground">
-              Customize how Jotion looks on your device
+              Coming soon...
             </span>
           </div>
         </div>

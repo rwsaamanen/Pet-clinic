@@ -1,13 +1,10 @@
 import mongoose from 'mongoose';
 
 const petSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     ownerId: {
-        type: Number,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
     },
     name: {
         type: String,
@@ -16,19 +13,22 @@ const petSchema = new mongoose.Schema({
     petType: {
         type: String,
         required: true,
-        enum: ['dog', 'cat'] // Assuming only dogs and cats are allowed. Add more types if needed.
+        enum: ['dog', 'cat']
     },
     status: {
         type: String,
         required: true,
-        enum: ['alive', 'deceased']
+        enum: ['alive', 'deceased'],
+        default: 'alive'
     },
     dob: {
         type: Date,
         required: true
-    }
+    },
+    comments: [{
+        type: String
+    }]
 });
 
-const pets = mongoose.model('pets', petSchema);
-
-export default pets;
+const Pet = mongoose.model('Pet', petSchema);
+export default Pet;

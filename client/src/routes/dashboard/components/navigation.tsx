@@ -21,7 +21,7 @@ import { useSearch } from "../../../hooks/use-search";
 import { useSettings } from "../../../hooks/use-settings";
 import { cn } from "../../../lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
-import { DocumentList } from "./document-list";
+import { PetList } from "./PetList";
 import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
@@ -42,7 +42,6 @@ export const Navigation = () => {
       resetWidth();
     }
   }, [isMobile]);
-
 
   const handleMouseDown = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -105,17 +104,16 @@ export const Navigation = () => {
     }
   }
 
-  const handlePetsClick = () => {
-    navigate('/dashboard/pets');
-  };
-
-  // Handler for Visits item
-  const handleVisitsClick = () => {
-    navigate('/dashboard/visits');
-  };
-  
   const handleHomeClick = () => {
     navigate('/dashboard');
+  };
+
+  const handleVisitClick = () => {
+    navigate('/dashboard/visits');
+  };
+
+  const handleCreatePet = () => {
+    navigate(`/dashboard/pets/create-pet`);
   };
 
   return (
@@ -159,19 +157,19 @@ export const Navigation = () => {
             icon={Home}
             onClick={handleHomeClick}
           />
-        </div>
-        <div className="mt-4">
-          <DocumentList />
-          <Item
-            label="Pets"
-            icon={PawPrint}
-            onClick={handlePetsClick}
-          />
           <Item
             label="Visits"
             icon={MapPin}
-            onClick={handleVisitsClick}
+            onClick={handleVisitClick}
           />
+          <Item
+            onClick={handleCreatePet}
+            label="Add a Pet"
+            icon={PlusCircle}
+          />
+        </div>
+        <div className="mt-4">
+          <PetList />
           <Popover>
             <PopoverTrigger className="w-full mt-4">
               <Item label="Trash" icon={Trash} />

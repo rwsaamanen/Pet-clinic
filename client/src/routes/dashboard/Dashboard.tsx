@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { AuthContext } from "../../context/AuthContext";
+import { getUserDetails } from "../../context/UserUtils";
+import { useContext, useEffect, useState } from "react";
 import MarQuee from "react-fast-marquee";
 
 // Testikuvia
@@ -41,6 +43,7 @@ const rowTwoImages = [
 
 const Dashboard = () => {
   const [mounted, setmounted] = useState(false);
+  const { name } = getUserDetails();
 
   useEffect(() => {
     if (!mounted) {
@@ -57,8 +60,8 @@ const Dashboard = () => {
       <div>
         <div className="flex items-center justify-center w-full h-screen">
           <div className="flex flex-col items-center justify-center">
-            <h1 className="text-4xl py-5 xl:text-7xl 2xl:text-8xl font-[700] text-center xl:leading-[80px] 2xl:leading-[100px]">
-              Welcome USER NAME
+            <h1 className="text-4xl py-5 xl:text-7xl 2xl:text-8xl font-semibold text-center xl:leading-[80px] 2xl:leading-[100px]">
+              Welcome back,<br /> <span className="font-bold">{name}!</span>
             </h1>
             <div className="wrapper bg-secondary dark:bg-background border shadow-2xl shadow-neutral-600 rounded-md">
               <MarQuee pauseOnHover={true}>

@@ -3,9 +3,11 @@ import AuthLayout from "../Layout";
 import Input from "../Input";
 import PasswordInput from "../PasswordInput";
 import { ChangeEvent, FormEvent, useState } from "react";
+import useAuthRedirect from '../../../hooks/use-auth-redirect';
 
 const SignUp = () => {
-  const navigate = useNavigate();
+  useAuthRedirect(); 
+  const navigate = useNavigate(); 
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -36,9 +38,8 @@ const SignUp = () => {
       if (!response.ok) {
 
         console.error('Signup error:', data.message);
-        navigate('/auth/login');
       } else {
-
+        setTimeout(() => navigate('/auth/login'), 100);
         console.log('Signup successful:', data);
       }
     } catch (error) {

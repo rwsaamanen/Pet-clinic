@@ -1,26 +1,36 @@
 import { ChevronsLeftRight } from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../../../components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../context/AuthContext";
+import { useContext } from "react";
+import { getUserDetails } from "../../../context/UserUtils";
 
 export const UserItem = () => {
+  const authContext = useContext(AuthContext);
+  const { email, name } = getUserDetails();
   const navigate = useNavigate();
 
   const handleLogout = () => {
 
-    // TODO;
-    // Clear user authentication data
+    // Clear user authentication data.
 
     localStorage.removeItem('token');
 
-    navigate('/auth/login');
+    // Update authentication context.
+
+    if (authContext) {
+      authContext.setIsAuthenticated(false);
+    }
+
+    // Redirect with slight delay.
+
+    setTimeout(() => navigate('/'), 100);
   };
 
   return (
@@ -29,7 +39,7 @@ export const UserItem = () => {
         <div role="button" className="flex items-center text-sm p-3 w-full hover:bg-primary/5">
           <div className="gap-x-2 flex items-center max-w-[150px]">
             <span className="text-start font-medium line-clamp-1">
-              User
+              {name}
             </span>
           </div>
           <ChevronsLeftRight className="rotate-90 ml-2 text-muted-foreground h-4 w-4" />
@@ -43,21 +53,21 @@ export const UserItem = () => {
       >
         <div className="flex flex-col space-y-4 p-2">
           <p className="text-xs font-medium leading-none text-muted-foreground">
-            User Email
+            {email}
           </p>
           <div className="flex items-center gap-x-2">
             <div className="rounded-md bg-secondary p-1">
             </div>
             <div className="space-y-1">
               <p className="text-sm line-clamp-1">
-                Full name
+                {name}
               </p>
             </div>
           </div>
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className="w-full cursor-pointer text-muted-foreground">
-        <button onClick={handleLogout}>
+          <button onClick={handleLogout}>
             Sign out
           </button>
         </DropdownMenuItem>

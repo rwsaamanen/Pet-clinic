@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema({
         enum: ['doctor', 'pet_owner'],
         default: 'pet_owner',
     },
-    // Include any other relevant fields here
 });
 
 const users = mongoose.model('users', userSchema);

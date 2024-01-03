@@ -19,7 +19,7 @@ import {
 } from "../../../components/ui/dropdown-menu";
 
 interface ItemProps {
-
+  id?: string;
   documentIcon?: string;
   active?: boolean;
   expanded?: boolean;
@@ -29,7 +29,8 @@ interface ItemProps {
   label: string;
   onClick?: () => void;
   icon: LucideIcon;
-};
+  petList?: string[];
+}
 
 export const Item = ({
   label,
@@ -41,8 +42,10 @@ export const Item = ({
   level = 0,
   onExpand,
   expanded,
+  petList = [],
 }: ItemProps) => {
-
+  const isPetName = petList.includes(label);
+  
   const handleExpand = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
@@ -50,22 +53,23 @@ export const Item = ({
     onExpand?.();
   };
 
-
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
+  const textClass = isPetName ? "text-xs ml-4" : "";
 
   return (
     <div
       onClick={onClick}
       role="button"
       style={{
-        paddingLeft: level ? `${(level * 12) + 12}px` : "12px"
+        paddingLeft: level ? `${(level * 12) + 12}px` : "12px",
       }}
       className={cn(
         "group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium",
-        active && "bg-primary/5 text-primary"
+        active && "bg-primary/5 text-primary",
+        textClass
       )}
     >
-      {label !== "Search" && label !== "Settings" && label !== "Home" && (
+      {label === "Pets" && (
         <div
           role="button"
           className="h-full rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600 mr-1"

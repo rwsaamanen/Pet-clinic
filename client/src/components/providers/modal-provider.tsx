@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { SettingsModal } from "../../components/modals/settings-modal";
+import { AddVisitModal } from "../../components/modals/add-visit-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -16,6 +17,7 @@ export const ModalProvider = () => {
   return (
     <>
       <SettingsModal />
+      <AddVisitModal />
     </>
   );
 };

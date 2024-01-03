@@ -1,14 +1,10 @@
 import mongoose from 'mongoose';
 
 const visitSchema = new mongoose.Schema({
-    id: {
-        type: Number,
-        required: true
-    },
     petId: {
-        type: mongoose.Schema.Types.ObjectId, // Use ObjectId for referencing
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'Pet' // Reference to the Pet model
+        ref: 'Pet'
     },
     date: {
         type: Date,
@@ -16,10 +12,9 @@ const visitSchema = new mongoose.Schema({
     },
     comment: {
         type: String,
-        default: '' // Assuming comments can be optional
+        default: ''
     }
 });
 
-const visits = mongoose.model('visits', visitSchema);
-
-export default visits;
+const Visit = mongoose.model('Visit', visitSchema);
+export default Visit;

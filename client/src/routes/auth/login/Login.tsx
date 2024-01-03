@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../Layout";
 import Input from "../Input";
 import PasswordInput from "../PasswordInput";
+import useAuthRedirect from '../../../hooks/use-auth-redirect';
+import { saveUserDetails } from '../../../context/UserUtils';
 
 const Login = () => {
+  useAuthRedirect();
   const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -17,7 +20,7 @@ const Login = () => {
     const loginData = { email, password };
 
     // Send HTTP request to your backend API
-
+    
     try {
       const response = await fetch('http://localhost:5000/api/users/login', {
         method: 'POST',
@@ -28,11 +31,19 @@ const Login = () => {
       });
 
       const data = await response.json();
-      if (!response.ok) {
-        console.error('Login failed:', data.message);
-      } else {
+      console.log('User ID type:', typeof data.result.id);
+
+      if (response.ok) {
         console.log('Login successful:', data);
-        navigate('/dashboard');
+        localStorage.setItem('token', data.token);
+        saveUserDetails({ 
+          email: data.result.email, 
+          name: data.result.name, 
+          id: data.result.id
+      });
+        setTimeout(() => navigate('/dashboard'), 100);
+      } else {
+        console.error('Login failed:', data.message);
       }
     } catch (error) {
       console.error('Error during login:', error);
