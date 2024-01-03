@@ -2,7 +2,6 @@ import { create } from "zustand";
 
 interface Pet {
   _id: string;
-  // Include other pet properties as needed
 }
 
 type AddVisitState = {
