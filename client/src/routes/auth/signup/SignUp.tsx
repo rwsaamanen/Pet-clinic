@@ -51,7 +51,6 @@ const SignUp = () => {
         // Navigating to the login page after a successful signup. Could also navigate directly to dashboard.
 
         setTimeout(() => navigate('/auth/login'), 100);
-        console.log('Signup successful:', response.data);
       } else {
         console.error('Signup error:', response.data.message);
       }

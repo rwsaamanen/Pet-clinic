@@ -17,7 +17,6 @@ export const useSettings = create<SettingsStore>((set) => ({
   // onOpen
 
   onOpen: () => {
-    console.log("Opening settings");
     set({ isOpen: true });
   },
 

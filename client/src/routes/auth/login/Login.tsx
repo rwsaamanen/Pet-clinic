@@ -28,7 +28,6 @@ const Login = () => {
       // Check if the response is successful.
 
       if (response.status === 200) {
-        console.log('Login successful:', response.data);
         localStorage.setItem('token', response.data.token);
         saveUserDetails({
           email: response.data.result.email,

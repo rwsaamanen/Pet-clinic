@@ -48,8 +48,6 @@ export const EditPetDetails = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
-            console.log('Update response:', response);
-
             editDetails.onClose();
         } catch (error) {
             console.error('Error updating pet:', error);

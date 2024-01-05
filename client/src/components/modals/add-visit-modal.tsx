@@ -48,8 +48,6 @@ export const AddVisitModal = () => {
             });
 
             if (response.status === 200) {
-                const responseData = response.data;
-                console.log('Visit added:', responseData);
                 visit.onClose();
             } else {
                 throw new Error(response.data.message || 'Failed to add visit');

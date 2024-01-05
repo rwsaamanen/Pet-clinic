@@ -79,7 +79,6 @@ const CreatePet = () => {
             // Checking the response status and logging appropriate messages.
 
             if (response.status === 201) {
-                console.log('Pet added successfully', response.data);
             } else {
                 console.error('Failed to add pet', response.data);
             }

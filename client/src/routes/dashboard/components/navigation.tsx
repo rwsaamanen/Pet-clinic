@@ -159,7 +159,6 @@ export const Navigation = () => {
             label="Settings"
             icon={Settings}
             onClick={() => {
-              console.log("Item clicked");
               settings.onOpen();
             }}
           />
