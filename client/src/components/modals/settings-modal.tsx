@@ -1,13 +1,16 @@
+import { useSettings } from "../../hooks/use-settings";
+import { Label } from "../../components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader
 } from "../../components/ui/dialog";
-import { useSettings } from "../../hooks/use-settings";
-import { Label } from "../../components/ui/label";
+
+// SettingsModal
 
 export const SettingsModal = () => {
   const settings = useSettings();
+
   if (!settings.isOpen) {
     return null;
   }

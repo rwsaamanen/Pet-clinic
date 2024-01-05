@@ -1,3 +1,7 @@
+import axios from 'axios';
+import * as z from "zod"
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FormProvider, useForm } from 'react-hook-form';
 import { format } from "date-fns"
 import {
     FormControl,
@@ -12,16 +16,17 @@ import {
     PopoverTrigger,
 } from "../../../components/ui/popover"
 import { Calendar } from "../../../components/ui/calendar"
-import { FormProvider, useForm } from 'react-hook-form';
-import * as z from "zod"
-import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../../components/ui/input';
 import { Textarea } from "../../../components/ui/textarea";
 import { Button } from "../../../components/ui/button";
 import { CalendarIcon } from "lucide-react";
-import axios from 'axios';
+
+// CreatePet
 
 const CreatePet = () => {
+
+    // Defining the form schema using Zod for validation. 
+
     const generateFormSchema = z.object({
         name: z.string().min(1),
         comments: z.string().min(3).max(160),
@@ -29,7 +34,11 @@ const CreatePet = () => {
         dob: z.date(),
     });
 
+    // Inferring the type for form values from the Zod schema.
+
     type GenerateFormValues = z.infer<typeof generateFormSchema>;
+
+    // Initializing the form with react-hook-form and Zod for validation.
 
     const form = useForm<GenerateFormValues>({
         resolver: zodResolver(generateFormSchema),
@@ -42,20 +51,22 @@ const CreatePet = () => {
         },
     });
 
+    // onSubmit
+
     const onSubmit = async (data: GenerateFormValues) => {
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
 
         if (!userId) {
-            console.error('User ID not found');
             return;
         }
+
+        // Preparing the data to be sent in the request.
 
         const petData = {
             ...data,
             ownerId: userId,
         };
-
 
         try {
             const response = await axios.post('http://localhost:5000/api/pets', petData, {
@@ -64,6 +75,8 @@ const CreatePet = () => {
                     ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 }
             });
+
+            // Checking the response status and logging appropriate messages.
 
             if (response.status === 201) {
                 console.log('Pet added successfully', response.data);
@@ -76,7 +89,6 @@ const CreatePet = () => {
             } else {
                 console.error('Error submitting form:', error);
             }
-            // Handle errors
         }
     };
 
@@ -93,7 +105,7 @@ const CreatePet = () => {
                                 <FormItem className="mb-6">
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Pet's magic name" {...field} />
+                                        <Input placeholder="Pet&apos;s magic name" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

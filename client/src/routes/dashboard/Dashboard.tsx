@@ -1,45 +1,72 @@
-import { AuthContext } from "../../context/AuthContext";
 import { getUserDetails } from "../../context/UserUtils";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MarQuee from "react-fast-marquee";
+import animalsOne from '../../assets/img/animals1.jpg';
+import bunnyOne from '../../assets/img/bunny1.jpg';
+import catOne from '../../assets/img/cat1.jpg';
+import catTwo from '../../assets/img/cat2.jpg';
+import catThree from '../../assets/img/cat3.jpg';
+import catFour from '../../assets/img/cat4.jpg';
+import dogOne from '../../assets/img/dog1.jpg';
+import dogTwo from '../../assets/img/dog2.jpg';
+import dogThree from '../../assets/img/dog3.jpg';
+import dogFour from '../../assets/img/dog4.jpg';
+import dogFive from '../../assets/img/dog5.jpg';
+import hedgeOne from '../../assets/img/hedge1.jpg';
+import parrotsOne from '../../assets/img/parrots1.jpg';
+import guineaPigOne from '../../assets/img/guinePig1.jpg';
 
 // Testikuvia
 
 const rowOneImages = [
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/large-slider/one.png",
+    url: animalsOne,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/large-slider/two.png",
+    url: dogOne,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/large-slider/three.png",
+    url: bunnyOne,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/large-slider/four.png",
+    url: dogFour,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/large-slider/five.png",
+    url: catOne,
+  },
+  {
+    url: guineaPigOne,
+  },
+  {
+    url: catThree,
   },
 ];
 
 const rowTwoImages = [
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/small-slider/one.png",
+    url: catTwo,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/small-slider/two.png",
+    url: dogTwo,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/small-slider/three.png",
+    url: parrotsOne,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/small-slider/four.png",
+    url: dogThree,
   },
   {
-    url: "https://pixner.net/aikeu/assets/images/banner/small-slider/five.png",
+    url: hedgeOne,
+  },
+  {
+    url: dogFive,
+  },
+  {
+    url: catFour,
   },
 ];
+
+// Dashboard
 
 const Dashboard = () => {
   const [mounted, setmounted] = useState(false);
@@ -60,10 +87,10 @@ const Dashboard = () => {
       <div>
         <div className="flex items-center justify-center w-full h-screen">
           <div className="flex flex-col items-center justify-center">
-            <h1 className="text-4xl py-5 xl:text-7xl 2xl:text-8xl font-semibold text-center xl:leading-[80px] 2xl:leading-[100px]">
-              Welcome back,<br /> <span className="font-bold">{name}!</span>
+            <h1 className="text-4xl py-5 xl:text-7xl 2xl:text-8xl text-center xl:leading-[80px] 2xl:leading-[100px] tracking-tighter">
+              Welcome to PetVet,<br /> <span className="font-semibold underline">{name}!</span>
             </h1>
-            <div className="wrapper bg-secondary dark:bg-background border shadow-2xl shadow-neutral-600 rounded-md">
+            <div className="wrapper bg-gradient-to-br from-sky-100 via-gray-200 to-pink-100 border border-neutral-300 shadow-2xl shadow-gray-300 rounded-md">
               <MarQuee pauseOnHover={true}>
                 {rowOneImages.map((i, index) => (
                   <img

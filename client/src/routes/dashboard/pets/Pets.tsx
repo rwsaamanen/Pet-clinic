@@ -1,9 +1,10 @@
+import axios from 'axios';
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Separator } from "../../../components/ui/separator";
-import { Search } from "lucide-react";
 import { capitalize } from "../../../components/shared/Capitalize";
 import { formatDate } from "../../../components/shared/FormatDate";
-import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 
 interface Pet {
   _id: string;
@@ -13,10 +14,16 @@ interface Pet {
   petType: string;
 }
 
-export function Pets() {
+// Pets
+
+const Pets = () => {
   const [pets, setPets] = useState<Pet[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+
+  // Filtering the list of pets based on the search query.
+  // Lowercasing all pet attributes for case-insensitive search.
+  // Formatting date of birth for searchability.
 
   const filteredPets = pets.filter(pet => {
     const petName = pet.name.toLowerCase();
@@ -27,12 +34,16 @@ export function Pets() {
 
     const searchLower = searchQuery.toLowerCase();
 
+    // Returns true if pets that match any of the search criteria.
+
     return petName.includes(searchLower) ||
       petStatus.includes(searchLower) ||
       petType.includes(searchLower) ||
       standardPetDOB.toLowerCase().includes(searchLower) ||
       zeroOmittedPetDOB.includes(searchLower);
   });
+
+  // Function to generate a searchable date string.
 
   function generateSearchableDate(dateInput: Date): string {
     const date = new Date(dateInput);
@@ -46,30 +57,49 @@ export function Pets() {
   useEffect(() => {
     const fetchPets = async () => {
       try {
-
         const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Authentication token not found.');
+          return;
+        }
+  
+        // Determining the user's role to fetch appropriate pets data. i.e. Doctor can see all pets and owners only own pets.
 
-        const response = await fetch('http://localhost:5000/api/pets', {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          setPets(data);
+        const userRole = JSON.parse(localStorage.getItem('userDetails') || '{}').role;
+  
+        let url = '';
+        if (userRole === 'pet_owner') {
+          url = 'http://localhost:5000/api/pets/owner';
+        } else if (userRole === 'doctor') {
+          url = 'http://localhost:5000/api/pets';
+        }
+  
+        if (url) {
+          const response = await axios.get(url, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+  
+          const data = response.data;
+  
+          if (Array.isArray(data)) {
+            setPets(data);
+          } else {
+            console.error('Data is not an array:', data);
+          }
         } else {
-          console.error('Data is not an array:', data);
+          console.error('URL not defined for user role.');
         }
       } catch (error) {
         console.error('Error fetching pets:', error);
       }
     };
-
+  
     fetchPets();
   }, []);
+
+  // Function to redirect to a specific pet's detail page.
 
   const onRedirect = (petId: string) => {
     const pet = pets.find(p => p._id === petId);
@@ -104,7 +134,6 @@ export function Pets() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-
             </div>
           </div>
         </div>
@@ -148,6 +177,6 @@ export function Pets() {
       </div>
     </div>
   );
-}
+};
 
 export default Pets;

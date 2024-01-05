@@ -1,39 +1,33 @@
+import { ElementRef, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "usehooks-ts";
+import { UserItem } from "./user-item";
+import { Item } from "./item";
+import { useSettings } from "../../../hooks/use-settings";
+import { cn } from "../../../lib/utils";
+import { PetList } from "./PetList";
 import {
   ChevronsLeft,
   MenuIcon,
-  Plus,
   PlusCircle,
-  Search,
   Settings,
-  Trash,
-  PawPrint,
   MapPin,
   Home,
 } from "lucide-react";
-import { ElementRef, useEffect, useRef, useState } from "react";
-import { useMediaQuery } from "usehooks-ts";
 
-import { UserItem } from "./user-item";
-import { Item } from "./item";
-import { TrashBox } from "./trash-box";
-
-import { useSearch } from "../../../hooks/use-search";
-import { useSettings } from "../../../hooks/use-settings";
-import { cn } from "../../../lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
-import { PetList } from "./PetList";
-import { useNavigate } from "react-router-dom";
+// Navigation
 
 export const Navigation = () => {
-  const settings = useSettings();
-  const search = useSearch();
-  const isMobile = useMediaQuery("(max-width: 768px)");
   const navigate = useNavigate();
+  const settings = useSettings();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const isResizingRef = useRef(false);
   const sidebarRef = useRef<ElementRef<"aside">>(null);
   const navbarRef = useRef<ElementRef<"div">>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
+
+  // useEffect to handle sidebar behavior on mobile and desktop views.
 
   useEffect(() => {
     if (isMobile) {
@@ -43,23 +37,39 @@ export const Navigation = () => {
     }
   }, [isMobile]);
 
+  // Handler for initiating the resize of the sidebar.
+
   const handleMouseDown = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
   ) => {
     event.preventDefault();
     event.stopPropagation();
 
+    // Setting the resizing flag to true.
+
     isResizingRef.current = true;
+
+    // Adding mouse move and mouse up listeners to handle the resizing.
+
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleMouseMove = (event: MouseEvent) => {
-    if (!isResizingRef.current) return;
-    let newWidth = event.clientX;
+  // Handler for resizing the sidebar as the mouse moves.
 
+  const handleMouseMove = (event: MouseEvent) => {
+
+    // If not resizing, exit the function. Optimize performance.
+
+    if (!isResizingRef.current) return;
+
+    // Calculate the new width, constraining it within a min-max range.
+
+    let newWidth = event.clientX;
     if (newWidth < 240) newWidth = 240;
     if (newWidth > 480) newWidth = 480;
+
+    // Apply the new width to the sidebar and adjust the navbar accordingly.
 
     if (sidebarRef.current && navbarRef.current) {
       sidebarRef.current.style.width = `${newWidth}px`;
@@ -68,16 +78,22 @@ export const Navigation = () => {
     }
   };
 
+  // Handler for when mouse up event occurs, stops the resizing.
+
   const handleMouseUp = () => {
     isResizingRef.current = false;
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
+  // Function to reset the sidebar width to default.
+
   const resetWidth = () => {
     if (sidebarRef.current && navbarRef.current) {
       setIsCollapsed(false);
       setIsResetting(true);
+
+      // Apply default width for mobile and desktop views.
 
       sidebarRef.current.style.width = isMobile ? "100%" : "240px";
       navbarRef.current.style.setProperty(
@@ -88,9 +104,14 @@ export const Navigation = () => {
         "left",
         isMobile ? "100%" : "240px"
       );
+
+      // Resetting state after a brief timeout.
+
       setTimeout(() => setIsResetting(false), 300);
     }
   };
+
+  // collapse i.e. Sidebar collapse.
 
   const collapse = () => {
     if (sidebarRef.current && navbarRef.current) {
@@ -104,17 +125,13 @@ export const Navigation = () => {
     }
   }
 
-  const handleHomeClick = () => {
-    navigate('/dashboard');
-  };
+  // Navigation handlers for different routes.
+  const handleHomeClick = () => navigate('/dashboard');
+  const handleVisitClick = () => navigate('/dashboard/visits');
+  const handleCreatePet = () => navigate(`/dashboard/pets/create-pet`);
 
-  const handleVisitClick = () => {
-    navigate('/dashboard/visits');
-  };
-
-  const handleCreatePet = () => {
-    navigate(`/dashboard/pets/create-pet`);
-  };
+  const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
+  const isDoctor = userDetails.role === 'doctor';
 
   return (
     <>
@@ -139,12 +156,6 @@ export const Navigation = () => {
         <div>
           <UserItem />
           <Item
-            label="Search"
-            icon={Search}
-            isSearch
-            onClick={search.onOpen}
-          />
-          <Item
             label="Settings"
             icon={Settings}
             onClick={() => {
@@ -157,11 +168,13 @@ export const Navigation = () => {
             icon={Home}
             onClick={handleHomeClick}
           />
-          <Item
-            label="Visits"
-            icon={MapPin}
-            onClick={handleVisitClick}
-          />
+          {isDoctor && (
+            <Item
+              label="Visits"
+              icon={MapPin}
+              onClick={handleVisitClick}
+            />
+          )}
           <Item
             onClick={handleCreatePet}
             label="Add a Pet"
@@ -170,17 +183,6 @@ export const Navigation = () => {
         </div>
         <div className="mt-4">
           <PetList />
-          <Popover>
-            <PopoverTrigger className="w-full mt-4">
-              <Item label="Trash" icon={Trash} />
-            </PopoverTrigger>
-            <PopoverContent
-              className="p-0 w-72"
-              side={isMobile ? "bottom" : "right"}
-            >
-              <TrashBox />
-            </PopoverContent>
-          </Popover>
         </div>
         <div
           onMouseDown={handleMouseDown}
@@ -201,5 +203,5 @@ export const Navigation = () => {
         </nav>
       </div>
     </>
-  )
-}
+  );
+};

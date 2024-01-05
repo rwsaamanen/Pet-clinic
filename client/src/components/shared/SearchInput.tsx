@@ -1,5 +1,7 @@
 type OnSearchChange = (searchValue: string) => void;
 
+// SearchInput
+
 const SearchInput = ({ onSearchChange }: { onSearchChange: OnSearchChange }) => {
     return (
       <input

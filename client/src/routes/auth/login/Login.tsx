@@ -1,10 +1,11 @@
+import axios from 'axios';
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import AuthLayout from "../Layout";
-import Input from "../Input";
-import PasswordInput from "../PasswordInput";
 import useAuthRedirect from '../../../hooks/use-auth-redirect';
 import { saveUserDetails } from '../../../context/UserUtils';
+import PasswordInput from "../PasswordInput";
+import AuthLayout from "../Layout";
+import Input from "../Input";
 
 const Login = () => {
   useAuthRedirect();
@@ -12,48 +13,47 @@ const Login = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
+  // handleSubmit
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Construct the login data
+    // Construct the login data.
 
     const loginData = { email, password };
 
-    // Send HTTP request to your backend API
-
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData),
-      });
+      const response = await axios.post('http://localhost:5000/api/users/login', loginData);
 
-      const data = await response.json();
-      console.log('User ID type:', typeof data.result.id);
+      // Check if the response is successful.
 
-      if (response.ok) {
-        console.log('Login successful:', data);
-        localStorage.setItem('token', data.token);
+      if (response.status === 200) {
+        console.log('Login successful:', response.data);
+        localStorage.setItem('token', response.data.token);
         saveUserDetails({
-          email: data.result.email,
-          name: data.result.name,
-          id: data.result.id
+          email: response.data.result.email,
+          name: response.data.result.name,
+          id: response.data.result.id
         });
 
         const userDetails = {
-          id: data.result.id,
-          role: data.result.role
+          id: response.data.result.id,
+          role: response.data.result.role
         };
         localStorage.setItem('userDetails', JSON.stringify(userDetails));
 
+        // Redirect to the dashboard after a successful login.
+
         setTimeout(() => navigate('/dashboard'), 100);
       } else {
-        console.error('Login failed:', data.message);
+        console.error('Login failed:', response.data.message);
       }
     } catch (error) {
-      console.error('Error during login:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Error during login:', error.response?.data || error.message);
+      } else {
+        console.error('Error during login:', error);
+      }
     }
   };
 

@@ -7,6 +7,8 @@ type SearchStore = {
   toggle: () => void;
 };
 
+// useSearch
+
 export const useSearch = create<SearchStore>((set, get) => ({
   isOpen: false,
   onOpen: () => set({ isOpen: true }),

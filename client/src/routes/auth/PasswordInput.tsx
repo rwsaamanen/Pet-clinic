@@ -8,6 +8,8 @@ interface PasswordInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+// PasswordInput Component - a controlled input component for password fields.
+
 const PasswordInput: React.FC<PasswordInputProps> = ({ placeholder, name, value, onChange }) => {
   const [passwordShown, setPasswordShown] = useState(false);
 
@@ -17,11 +19,11 @@ const PasswordInput: React.FC<PasswordInputProps> = ({ placeholder, name, value,
 
   return (
     <div className="flex items-center border border-neutral-600 py-2 rounded-md mb-4 bg-neutral-800 relative">
-      <input 
+      <input
         name={name}
-        type={passwordShown ? 'text' : 'password'} 
+        type={passwordShown ? 'text' : 'password'}
         placeholder={placeholder}
-        className="pl-2 pr-10 outline-none border-none bg-neutral-800 w-full" 
+        className="pl-2 pr-10 outline-none border-none bg-neutral-800 w-full"
         value={value}
         onChange={onChange}
       />

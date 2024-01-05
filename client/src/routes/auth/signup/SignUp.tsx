@@ -1,49 +1,66 @@
+import axios from "axios";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import useAuthRedirect from '../../../hooks/use-auth-redirect';
+import PasswordInput from "../PasswordInput";
 import AuthLayout from "../Layout";
 import Input from "../Input";
-import PasswordInput from "../PasswordInput";
-import { ChangeEvent, FormEvent, useState } from "react";
-import useAuthRedirect from '../../../hooks/use-auth-redirect';
+
+// SignUp
 
 const SignUp = () => {
-  useAuthRedirect(); 
-  const navigate = useNavigate(); 
+  useAuthRedirect();
+  const navigate = useNavigate();
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [passwordError, setPasswordError] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+
+  // handleSubmit
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+
+    // Preventing the default form submission behavior.
+
     event.preventDefault();
+
+    // Validating if the password and confirm password fields match.
+
     if (password !== confirmPassword) {
+
+      // Setting a password error if they do not match.
+
       setPasswordError('Passwords do not match');
       return;
     }
+
+    // Clearing any previous password errors.
+
     setPasswordError('');
+
+    // Preparing the user data to be sent in the signup request.
 
     const userData = { name, email, password };
 
     try {
+      const response = await axios.post('http://localhost:5000/api/users/signup', userData);
 
-      const response = await fetch('http://localhost:5000/api/users/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
+      if (response.status === 201) {
 
-      const data = await response.json();
-      if (!response.ok) {
+        // Navigating to the login page after a successful signup. Could also navigate directly to dashboard.
 
-        console.error('Signup error:', data.message);
-      } else {
         setTimeout(() => navigate('/auth/login'), 100);
-        console.log('Signup successful:', data);
+        console.log('Signup successful:', response.data);
+      } else {
+        console.error('Signup error:', response.data.message);
       }
     } catch (error) {
-      console.error('Error during signup:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Error during signup:', error.response?.data || error.message);
+      } else {
+        console.error('Error during signup:', error);
+      }
     }
   };
 

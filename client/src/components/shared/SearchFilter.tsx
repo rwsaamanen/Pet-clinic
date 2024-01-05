@@ -4,6 +4,8 @@ type DataItem = {
   
   type FilterCallback = (item: DataItem, query: string) => boolean;
   
+// useSearchFilter
+
   export const useSearchFilter = (
     data: DataItem[], 
     searchQuery: string, 

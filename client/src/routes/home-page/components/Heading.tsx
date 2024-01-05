@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom"
 
-export const Heading = () => {
+// Heading
 
+export const Heading = () => {
     return (
         <div className="max-w-3xl space-y-4">
             <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold">
-                Paws & Claws: Your Pet's Health, Our Passion. Welcome to <span className="underline">PetVet</span>
+                Paws & Claws: Your Pet&apos;s Health, Our Passion. Welcome to <span className="underline">PetVet</span>
             </h1>
             <h3 className="text-base sm:text-xl md:text-2xl font-medium text-neutral-700">
                 "Empowering Pet Owners with Expert Care and Compassionate Solutions for a Happier, Healthier Best Friend"
@@ -16,5 +17,5 @@ export const Heading = () => {
                 </Link>
             </div>
         </div>
-    )
-}
+    );
+};

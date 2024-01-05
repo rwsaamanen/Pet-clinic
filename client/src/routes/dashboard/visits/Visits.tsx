@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
 import { Separator } from "../../../components/ui/separator";
 import { formatDate } from "../../../components/shared/FormatDate";
-import { useNavigate } from 'react-router-dom';
+import { Search } from "lucide-react";
 
 interface Pet {
     _id: string;
@@ -18,18 +17,19 @@ interface Visit {
     petName?: string;
 }
 
-export function Visits() {
+// Visits
+
+const Visits = () => {
     const [upcomingVisits, setUpcomingVisits] = useState<Visit[]>([]);
     const [pastVisits, setPastVisits] = useState<Visit[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchVisits = async () => {
             try {
                 const token = localStorage.getItem('token');
+
                 if (!token) {
-                    console.error('Authentication token not found.');
                     return;
                 }
 
@@ -41,10 +41,14 @@ export function Visits() {
 
                 let visitsData: Visit[] = response.data;
 
-                visitsData = await Promise.all(visitsData.map(async (visit: Visit) => {
+                // Enriching each visit with the pet's name.
 
+                visitsData = await Promise.all(visitsData.map(async (visit: Visit) => {
                     if (visit.petId && typeof visit.petId === 'string') {
                         try {
+
+                            // Fetching pet details for each visit.
+
                             const petResponse = await axios.get(`http://localhost:5000/api/pets/${visit.petId}`, {
                                 headers: {
                                     'Authorization': `Bearer ${token}`,
@@ -52,15 +56,14 @@ export function Visits() {
                             });
                             return { ...visit, petName: petResponse.data.name };
                         } catch (error) {
-                            console.error('Error fetching pet data:', error);
-
                             return { ...visit, petName: 'Unknown Pet' };
                         }
                     } else {
-
                         return { ...visit, petName: 'Unknown Pet' };
                     }
                 }));
+
+                // Filtering and sorting visits.
 
                 const now = new Date();
                 const upcoming = visitsData.filter(visit => new Date(visit.date) > now)
@@ -78,6 +81,8 @@ export function Visits() {
         fetchVisits();
     }, []);
 
+    // Custom hook to filter data based on a search query.
+
     const useSearchFilter = (
         data: Visit[],
         searchQuery: string,
@@ -86,16 +91,22 @@ export function Visits() {
         return data.filter(item => filterCallback(item, searchQuery));
     };
 
+    // Function to normalize dates for easier comparison.
+
     const normalizeDate = (dateString: string) => {
         const date = new Date(dateString);
         const day = date.getDate().toString();
         const month = (date.getMonth() + 1).toString();
+
+        // Formats the date with and without leading zeros.
 
         const withLeadingZeros = `${day.padStart(2, '0')}.${month.padStart(2, '0')}`;
         const withoutLeadingZeros = `${parseInt(day)}.${parseInt(month)}`;
 
         return { withLeadingZeros, withoutLeadingZeros };
     };
+
+    // Applying the search filter to both upcoming and past visits.
 
     const filteredVisits = useSearchFilter(upcomingVisits.concat(pastVisits), searchQuery, (visit, query) => {
         const lowerCaseQuery = query.toLowerCase();
@@ -106,6 +117,7 @@ export function Visits() {
         return petNameMatch || dateMatch;
     });
 
+    // Refiltering the visits based on current date to separate upcoming and past visits.
 
     const now = new Date();
     const filteredUpcomingVisits = filteredVisits.filter(visit => new Date(visit.date) > now);
@@ -140,7 +152,6 @@ export function Visits() {
                         </div>
                     </div>
                 </div>
-
 
                 <div className="grid md:grid-cols-2 gap-4 grid-cols-1 mt-8">
                     <div>
@@ -198,7 +209,6 @@ export function Visits() {
             </div>
         </div>
     );
-}
-
+};
 
 export default Visits;

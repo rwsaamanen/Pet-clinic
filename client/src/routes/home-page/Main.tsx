@@ -2,6 +2,8 @@
 import { Heading } from "./components/Heading";
 import { Heroes } from "./components/Heroes";
 
+// Home
+
 const Home = () => {
     return (
         <div className="min-h-full flex flex-col">
@@ -11,7 +13,7 @@ const Home = () => {
             </div>
         </div>
     );
-}
+};
 
 export default Home;
 

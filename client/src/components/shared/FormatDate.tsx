@@ -1,3 +1,5 @@
+// formatDate
+
 export const formatDate = (dateInput: string | Date): string => {
     const date = new Date(dateInput);
     const day = date.getDate().toString().padStart(2, '0');

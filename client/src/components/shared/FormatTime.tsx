@@ -1,3 +1,5 @@
+// formatTime
+
 export const formatTime = (timestamp: Date) => {
     const date = new Date(timestamp);
     const hours = date.getHours().toString().padStart(2, '0');

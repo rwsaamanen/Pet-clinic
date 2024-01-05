@@ -1,5 +1,7 @@
 import { Outlet } from "react-router-dom";
 
+// Auth
+
 const Auth = () => {
   return (
     <div className="h-screen flex text-black">
@@ -8,6 +10,6 @@ const Auth = () => {
       </main>
     </div>
   );
-}
+};
 
 export default Auth;

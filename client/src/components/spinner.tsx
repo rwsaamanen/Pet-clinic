@@ -1,8 +1,10 @@
 import { Loader } from "lucide-react";
-
 import { cva, type VariantProps } from "class-variance-authority";
-
 import { cn } from "@/lib/utils";
+
+// NOT IN USE. TODO IMPLEMENT.
+
+// Define spinner size variants using class-variance-authority (cva).
 
 const spinnerVariants = cva(
   "text-muted-foreground animate-spin",
@@ -21,12 +23,16 @@ const spinnerVariants = cva(
   },
 );
 
-interface SpinnerProps extends VariantProps<typeof spinnerVariants> {}
+interface SpinnerProps extends VariantProps<typeof spinnerVariants> { }
 
-export const Spinner = ({
-  size,
-}: SpinnerProps) => {
+// Spinner
+
+export const Spinner = ({ size }: SpinnerProps) => {
   return (
+
+    // Using the Loader component from lucide-react as the spinner.
+    // The className is dynamically generated based on the size variant.
+
     <Loader className={cn(spinnerVariants({ size }))} />
   );
 };

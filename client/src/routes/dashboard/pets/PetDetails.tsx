@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Separator } from '../../../components/ui/separator';
+import { Editor } from '../../../components/shared/Editor';
+import { useVisit } from '../../../hooks/use-visit'
+import { useEditDetails } from '../../../hooks/use-pet-details'
 import {
     Dog,
     Cat,
 } from "lucide-react";
-import { Separator } from '../../../components/ui/separator';
-import { useVisit } from '../../../hooks/use-visit'
-import { useEditDetails } from '../../../hooks/use-pet-details'
-import axios from 'axios';
-import { Editor } from '../../../components/shared/Editor';
 
 interface CommentAuthor {
     name: string;
@@ -17,6 +17,9 @@ interface CommentAuthor {
 
 interface Comment {
     _id: string;
+    petId: {
+        _id: string;
+    };
     content: string;
     createdAt: string;
     author: CommentAuthor;
@@ -38,6 +41,14 @@ interface Visit {
     comment: string;
 }
 
+interface VisitComment {
+    _id: string;
+    visitId: string;
+    comment: string;
+}
+
+// PetDetails { This file needs heavy refactoring TODO }
+
 const PetDetails = () => {
     const location = useLocation();
     const pet = location.state?.pet;
@@ -50,7 +61,7 @@ const PetDetails = () => {
     const [editorContent, setEditorContent] = useState('');
     const [comments, setComments] = useState<CommentsState>({ publicComments: [], doctorComments: [] });
     const allComments: Comment[] = [...comments.publicComments, ...comments.doctorComments];
-
+    const [visitComments, setVisitComments] = useState<VisitComment[]>([]);
     const editorRef = useRef<HTMLDivElement>(null);
 
     if (!pet) {
@@ -58,15 +69,17 @@ const PetDetails = () => {
     }
 
     useEffect(() => {
-        console.log("useEffect triggered", pet);
+
+        // Checking if pet data is present and has an ID.
 
         if (pet && pet._id) {
             setEditedPet(pet);
             fetchVisitsForPet(pet._id);
             fetchComments();
         }
-    }, [pet]);
+    }, [pet]); // Dependency array with 'pet' to run the effect when 'pet' changes. Navigating to this page should always trigger this.
 
+    // fetchVisitsForPet
 
     const fetchVisitsForPet = async (petId: string) => {
         try {
@@ -74,18 +87,44 @@ const PetDetails = () => {
             const response = await axios.get('http://localhost:5000/api/visits', {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
+
+            // Extracting all visits from the response.
+
             const allVisits: Visit[] = response.data;
 
-            categorizeVisits(filterVisitsByPetId(allVisits, petId));
+            // Filtering visits that match the current pet's ID.
+
+            const matchingVisits = filterVisitsByPetId(allVisits, petId);
+
+            // Extracting comments from the matching visits.
+
+            const comments = matchingVisits
+                .filter((visit) => visit.comment !== '')
+                .map((visit) => ({
+                    _id: visit._id,
+                    visitId: visit._id,
+                    comment: visit.comment
+                }));
+
+            // Setting the comments related to the visits.
+
+            setVisitComments(comments);
+
+            // Categorizing visits into upcoming and past.
+
+            categorizeVisits(matchingVisits);
         } catch (error) {
             console.error('Error fetching visits:', error);
         }
     };
 
+    // filterVisitsByPetId
+
     const filterVisitsByPetId = (visits: Visit[], petId: string) => {
         return visits.filter(visit => visit.petId._id === petId);
     };
 
+    // categorizeVisits i.e. categorize visits into upcoming and past based on the current date.
 
     const categorizeVisits = (visits: Visit[]) => {
         const now = new Date();
@@ -102,6 +141,8 @@ const PetDetails = () => {
         setPastVisits(past);
     };
 
+    // getPetIcon
+
     const getPetIcon = (petType: string) => {
         switch (petType) {
             case 'dog':
@@ -113,18 +154,26 @@ const PetDetails = () => {
         }
     };
 
+    // calculateAge i.e. Calculate the age of a pet based on its birth date.
+
     const calculateAge = (dateString: string): number => {
         const birthDate = new Date(dateString);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
+
+        // Checks if we need to adjust the age based on the month and day.
+
         const monthDifference = today.getMonth() - birthDate.getMonth();
 
-        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        // Decreasing the age by 1 if the pet hasn't reached its birthday yet this year.
+
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate()))
             age--;
-        }
 
         return age;
     };
+
+    // Following functions could potentially be in separate utility file. TODO
 
     const capitalizeFirstLetter = (string: string): string => {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -147,7 +196,7 @@ const PetDetails = () => {
         setShowEditor(!showEditor);
     };
 
-    // Click outside the Remark to unfocus.
+    // Click outside remark container to hide.
 
     const handleClickOutside = (event: MouseEvent) => {
         if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
@@ -155,12 +204,19 @@ const PetDetails = () => {
         }
     };
 
+    // useEffect to manage adding and removing an event listener for detecting clicks outside an element.
+
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
+
+        // Cleanup function to remove the event listener when the component is unmounted.
+
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Event handlers.
 
     const handleEditorContentChange = (content: string) => {
         setEditorContent(content);
@@ -174,13 +230,20 @@ const PetDetails = () => {
         await sendComment(editorContent, 'public');
     };
 
+    // sendComment
+
     const sendComment = async (content: string, type: 'doctor' | 'public') => {
+
+        // Validating the comment content to ensure it's not empty.
+
         if (!content || content.trim() === '') {
             console.error('Error: Comment content is empty');
             return;
         }
 
-        const isPublic = type === 'public'; 
+        // Determining if the comment is public based on the type.
+
+        const isPublic = type === 'public';
 
         try {
             const token = localStorage.getItem('token');
@@ -199,7 +262,7 @@ const PetDetails = () => {
         }
     };
 
-    // FETCH
+    // fetchComments
 
     const fetchComments = async () => {
         const token = localStorage.getItem('token');
@@ -207,6 +270,8 @@ const PetDetails = () => {
             console.error('Authentication token not found.');
             return;
         }
+
+        // Get comments.
 
         try {
             const response = await axios.get(`http://localhost:5000/api/pets/${pet._id}/comments`, {
@@ -217,7 +282,7 @@ const PetDetails = () => {
         } catch (error: any) {
             console.error('Error fetching comments:', error);
             if (error.response) {
-                console.error("Error details:", error.response); // Detailed error log
+                console.error("Error details:", error.response);
             }
         }
     };
@@ -237,11 +302,7 @@ const PetDetails = () => {
         return `${hours}.${minutes}`;
     };
 
-    const sortedComments = allComments.sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        return dateB - dateA;
-    });
+    // handleRemoveComment
 
     const handleRemoveComment = async (petId: string, commentId: string) => {
         const token = localStorage.getItem('token');
@@ -249,24 +310,35 @@ const PetDetails = () => {
             console.error('Authentication token not found.');
             return;
         }
-    
-        console.log("Received commentId: " + commentId);
-        console.log("Received petId: " + petId);
-    
+
         try {
+
+            // Making a DELETE request to remove a specific comment.
+            // The request URL includes both the commentId and petId.
+
             const response = await axios.delete(`http://localhost:5000/api/pets/comments/${commentId}/${petId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-    
-            console.log('Comment removed:', response.data);
-    
+
+            // Better catch. TODO
+
         } catch (error) {
             console.error('Error removing comment:', error);
         }
-    };    
+    };
 
     const userDetails = JSON.parse(localStorage.getItem('userDetails') || '{}');
-    
+
+    // Checking if the current user is a doctor based on the role specified in user details.
+
+    const isDoctor = userDetails && userDetails.role === 'doctor';
+
+    // Filtering comments based on the user's role. i.e. If doctor, acces all comments. Otherwise only public comments.
+
+    const filteredComments: Comment[] = isDoctor
+        ? allComments
+        : comments.publicComments;
+
     return (
         <div className="w-full">
             <div className="mx-auto max-w-5xl pb-12 px-4 text-primary w-full">
@@ -318,28 +390,53 @@ const PetDetails = () => {
                     </button>
                 </div>
 
-                <div className='flex justify-between mt-48 mb-10 items-center'>
-                    <h1 className='font-semibold text-lg bg-neutral-800 text-white px-2 py-1 rounded-full cursor-default'>Remarks</h1>
-                    <button onClick={handleAddRemarkClick} className="group inline-flex items-center hover:border hover:bg-neutral-100 px-3 py-1 rounded-md">
-                        <span className=" border-transparent pb-px transition motion-reduce:transition-none font-semibold">
-                            Add Remark
-                        </span>
-                        <span className="whitespace-nowrap">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="black"
-                                className="ml-1 inline-block h-4 w-4 shrink-0 -translate-y-px transition-transform group-hover:translate-x-2 motion-reduce:transition-none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    fillRule="evenodd"
-                                    d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
-                                    clipRule="evenodd"
-                                />
-                            </svg>
-                        </span>
-                    </button>
+                <div>
+                    <h1 className='mb-2 mt-6 text-lg font-semibold tracking-tight'>Upcoming Visits</h1>
+                    <div className='border border-neutral-300 bg-white shadow-lg rounded-md p-5 grid grid-cols-3 gap-4'>
+                        <div className="col-span-1">
+                            <h2 className='font-semibold underline mb-5'>Upcoming Visits</h2>
+                            {upcomingVisits.map(visit => (
+                                <div key={visit._id} className='border border-neutral-300 mb-2 p-2 rounded-md bg-secondary'>
+                                    <p className='font-semibold text-sm'>{formatDate(visit.date)}</p>
+                                    {visitComments
+                                        .filter(comment => comment.visitId === visit._id)
+                                        .map((comment, index) => (
+                                            <div key={index}>
+                                                <Separator />
+                                                <p className='px-2 mt-2 text-sm'>{comment.comment}</p>
+                                            </div>
+                                        ))}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div className='flex justify-between mt-40 mb-10 items-center'>
+                    <h1 className='font-semibold text-lg bg-neutral-800 border-black text-white px-2 py-1 rounded-full cursor-default'>Remarks</h1>
+                    {isDoctor && (
+                        <button onClick={handleAddRemarkClick} className="group inline-flex items-center hover:border hover:bg-neutral-100 px-3 py-1 rounded-md">
+                            <span className=" border-transparent pb-px transition motion-reduce:transition-none font-semibold">
+                                Add Remark
+                            </span>
+                            <span className="whitespace-nowrap">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="black"
+                                    className="ml-1 inline-block h-4 w-4 shrink-0 -translate-y-px transition-transform group-hover:translate-x-2 motion-reduce:transition-none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            </span>
+                        </button>
+                    )}
                 </div>
 
                 {showEditor && (
@@ -355,14 +452,13 @@ const PetDetails = () => {
                     </div>
                 )}
 
-                {sortedComments.map(comment => (
-
+                {filteredComments.map(comment => (
                     <div key={comment._id} className='mb-4'>
                         <div className='flex font-semibold mt-4 px-2' style={{ alignItems: 'center' }}>
                             <p className='flex-grow'>
                                 {comments.doctorComments.includes(comment) ? 'Private' : 'Public'}
                             </p>
-                            {userDetails.role === 'doctor' && (
+                            {isDoctor && (
                                 <p onClick={() => handleRemoveComment(pet._id, comment._id)} className='ml-auto text-xs text-red-500 hover:text-red-700 hover:underline cursor-pointer'>
                                     Remove Remark
                                 </p>
@@ -384,12 +480,10 @@ const PetDetails = () => {
                                         comment.author?.name || 'Anonymous'
                                     )}
                                 </p>
-
                             </div>
                         </div>
                     </div>
                 ))}
-
             </div>
         </div>
     );

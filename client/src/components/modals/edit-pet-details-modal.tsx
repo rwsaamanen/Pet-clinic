@@ -1,12 +1,14 @@
+import axios from "axios";
 import React, { useState } from "react";
+import { useEditDetails } from "../../hooks/use-pet-details";
+import { Label } from "../../components/ui/label";
 import {
     Dialog,
     DialogContent,
     DialogHeader
 } from "../../components/ui/dialog";
-import { Label } from "../../components/ui/label";
-import { useEditDetails } from "../../hooks/use-pet-details";
-import axios from "axios";
+
+// EditPetDetails
 
 export const EditPetDetails = () => {
     const editDetails = useEditDetails();
@@ -17,6 +19,8 @@ export const EditPetDetails = () => {
     if (!editDetails.isOpen || !editDetails.pet) {
         return null;
     }
+
+    // Handlers
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value);
@@ -33,28 +37,30 @@ export const EditPetDetails = () => {
         }
         try {
             const token = localStorage.getItem('token');
-    
+
             const updatedName = name !== "" ? name : editDetails.pet.name;
             const updatedStatus = status !== "Select Status" ? status : editDetails.pet.status;
-    
+
             const response = await axios.put(`http://localhost:5000/api/pets/${editDetails.pet._id}`, {
                 name: updatedName,
                 status: updatedStatus
             }, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-    
+
             console.log('Update response:', response);
-    
+
             editDetails.onClose();
         } catch (error) {
             console.error('Error updating pet:', error);
         }
     };
 
+    // Function to determine the CSS class for status buttons.
+
     const getStatusButtonClass = (buttonStatus: string) => {
         return `rounded-md px-2 py-1 text-sm font-semibold hover:bg-neutral-200 ${status === buttonStatus ? 'bg-gray-200 text-black' : 'text-gray-700'}`;
-    };    
+    };
 
     return (
         <Dialog open={editDetails.isOpen} onOpenChange={editDetails.onClose}>

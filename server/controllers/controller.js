@@ -13,9 +13,7 @@ export const getPets = async (req, res) => {
     try {
 
         const userId = req.userId;
-
         const user = await User.findById(userId);
-
         const pets = await Pets.find().populate('doctorComments publicComments');
 
         // Filter comments based on user role and pet ownership.
@@ -45,6 +43,41 @@ export const getPets = async (req, res) => {
     }
 };
 
+// Fetch Pets for Owners
+
+export const getPetsByOwner = async (req, res) => {
+    try {
+      const userId = req.userId;
+      const user = await User.findById(userId);
+      const pets = await Pets.find({ ownerId: userId }).populate('doctorComments publicComments');
+  
+      // Filter comments based on user role and pet ownership.
+      
+      const modifiedPets = pets.map((pet) => {
+        let filteredDoctorComments = [];
+        let filteredPublicComments = [];
+  
+        if (user && user.role === 'doctor') {
+          filteredDoctorComments = pet.doctorComments;
+        }
+  
+        if (pet.ownerId.toString() === userId) {
+          filteredPublicComments = pet.publicComments;
+        }
+  
+        return {
+          ...pet.toObject(),
+          doctorComments: filteredDoctorComments,
+          publicComments: filteredPublicComments,
+        };
+      });
+  
+      res.status(200).json(modifiedPets);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
 // Create a new pet.
 
 export const createPet = async (req, res) => {
@@ -69,11 +102,15 @@ export const updatePet = async (req, res) => {
             return res.status(404).json({ message: "Pet not found" });
         }
 
+        // Creating a new comment object with the content, author, and visibility status.
+
         const newComment = {
             content: comment,
             author: req.userId,
             visibleToOwner: isPublic
         };
+
+        // Adding the comment to the appropriate array based on its visibility.
 
         if (isPublic) {
             pet.publicComments.push(newComment);
@@ -105,13 +142,26 @@ export const createUser = async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
+
+        // Checking if a user with the given email already exists in the database.
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
+
+            // If a user with the same email exists, return a 400 bad request response. TODO: Toast in frontend etc.
+
             return res.status(400).json({ message: "User already exists" });
         }
 
+        // Hashing the password for secure storage. The '12' is the salt rounds for bcrypt.
+
         const hashedPassword = await bcrypt.hash(password, 12);
+
+        // Creating a new user with the provided details and the hashed password.
+
         const result = await User.create({ name, email, password: hashedPassword });
+
+        // Generating a JWT token for the new user. This token is used for session management. TODO: Sessions in front ?
 
         const token = jwt.sign({ email: result.email, id: result._id, role: result.role }, SECRET_KEY, { expiresIn: "1h" });
         res.status(201).json({ result: { name: result.name, email: result.email }, token });
@@ -126,17 +176,24 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+
+        // Attempting to find a user in the database with the provided email.
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        // Checking if the provided password matches the stored hashed password.
 
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = jwt.sign({ email: user.email, id: user._id, role: user.role }, SECRET_KEY, { expiresIn: "1h" });
+        // Generating a JWT token that expires in 4 hours.
+
+        const token = jwt.sign({ email: user.email, id: user._id, role: user.role }, SECRET_KEY, { expiresIn: "4h" });
 
         const userId = user._id;
         const userRole = user.role;
@@ -147,7 +204,7 @@ export const login = async (req, res) => {
     }
 };
 
-// Update a user.
+// Update a user. TODO: Whole manager in frontend. Currently not in use.
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;
@@ -160,7 +217,6 @@ export const updateUser = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
-
 
 // Fetch all visits.
 
@@ -176,8 +232,15 @@ export const getVisits = async (req, res) => {
 // Create a new visit.
 
 export const createVisit = async (req, res) => {
-    const visit = new Visit(req.body);
+    const { petId, date, comment } = req.body;
+
     try {
+        const visit = new Visit({
+            petId,
+            date,
+            comment
+        });
+
         await visit.save();
         res.status(201).json(visit);
     } catch (error) {
@@ -191,6 +254,10 @@ export const updateVisit = async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
 
+    // Updating the visit record in the database.
+    // The 'findByIdAndUpdate' method searches for a visit by its ID and updates it with the provided data.
+    // The option { new: true } ensures that the method returns the updated document.
+
     try {
         const updatedVisit = await Visit.findByIdAndUpdate(id, updatedData, { new: true });
         res.status(200).json(updatedVisit);
@@ -199,7 +266,8 @@ export const updateVisit = async (req, res) => {
     }
 };
 
-// Controller function to handle adding a comment
+// Add a comment to a pet.
+
 export const addPetComment = async (req, res) => {
     const { petId, content, isPublic } = req.body;
 
@@ -216,7 +284,7 @@ export const addPetComment = async (req, res) => {
             visibleToOwner: isPublic
         };
 
-        // Add comment to the appropriate array.
+        // Add the comment to the appropriate array based on its visibility.
 
         if (isPublic) {
             pet.publicComments.push(newComment);
@@ -231,14 +299,18 @@ export const addPetComment = async (req, res) => {
     }
 };
 
-// Controller function to get comments for a specific pet
+// Get comments for a specific pet.
 
 export const getPetComments = async (req, res) => {
     const { petId } = req.params;
 
     try {
+
+        // Fetching the pet by its ID from the database.
+        // Populating the author details for both public and doctor comments.
+
         const pet = await Pets.findById(petId)
-            .populate('publicComments.author', 'name role') 
+            .populate('publicComments.author', 'name role')
             .populate('doctorComments.author', 'name role');
 
         if (!pet) {
@@ -254,27 +326,24 @@ export const getPetComments = async (req, res) => {
     }
 };
 
-// Controller function to handle removing a comment
+// Remove a comment from a pet.
 
 export const removePetComment = async (req, res) => {
-    console.log('Inside removePetComment controller');
-
-    const { commentId } = req.params;
-    const { petId } = req.params;
+    const { commentId, petId } = req.params;
 
     try {
         const pet = await Pets.findById(petId);
-        console.log('Pet ID:', petId);
-        console.log('Comment ID:', commentId);
 
         if (!pet) {
             return res.status(404).json({ message: "Pet not found" });
         }
 
-        console.log("User role:", req.userRole);
+        
         if (req.userRole !== 'doctor') {
             return res.status(403).json({ message: "Only doctors can remove comments" });
-        }        
+        }
+
+        // Determining which comment array (doctor or public) the comment belongs to.
 
         let commentArray = null;
         if (pet.doctorComments && pet.doctorComments.some(comment => comment._id.toString() === commentId)) {
@@ -287,13 +356,15 @@ export const removePetComment = async (req, res) => {
             return res.status(404).json({ message: "Comment not found" });
         }
 
+        // Finding the index of the comment in the array.
+
         const commentIndex = commentArray.findIndex(comment => comment._id.toString() === commentId);
 
         if (commentIndex === -1) {
             return res.status(404).json({ message: "Comment not found" });
         }
 
-        // Remove the comment from the array
+        // Remove the comment from the array.
 
         const removedComment = commentArray.splice(commentIndex, 1);
 

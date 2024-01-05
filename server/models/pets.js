@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import commentSchema from './comments.js';
 
+// petSchema
+
 const petSchema = new mongoose.Schema({
     ownerId: {
         type: mongoose.Schema.Types.ObjectId,

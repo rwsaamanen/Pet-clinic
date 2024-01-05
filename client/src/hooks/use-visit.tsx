@@ -11,6 +11,8 @@ type AddVisitState = {
   onClose: () => void;
 };
 
+// Creating a Zustand store for managing the state and actions related to adding a visit.
+
 export const useVisit = create<AddVisitState>((set) => ({
   isOpen: false,
   pet: null,

@@ -13,6 +13,8 @@ type PetDetailsStore = {
   onClose: () => void;
 };
 
+// useEditDetails
+
 export const useEditDetails = create<PetDetailsStore>((set) => ({
   isOpen: false,
   pet: null,

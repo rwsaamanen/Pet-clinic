@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+// visitSchema
+
 const visitSchema = new mongoose.Schema({
     petId: {
         type: mongoose.Schema.Types.ObjectId,

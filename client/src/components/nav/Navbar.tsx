@@ -1,11 +1,33 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate, } from "react-router-dom"
 import { Logo } from "../logo"
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
+// Navbar
+
 const Navbar = () => {
+    const navigate = useNavigate();
     const authContext = useContext(AuthContext);
     const isAuthenticated = authContext?.isAuthenticated;
+
+    // handleLogout
+
+    const handleLogout = () => {
+
+        // Clear user authentication data.
+    
+        localStorage.removeItem('token');
+    
+        // Update authentication context.
+    
+        if (authContext) {
+          authContext.setIsAuthenticated(false);
+        }
+    
+        // Redirect with slight delay.
+    
+        setTimeout(() => navigate('/'), 100);
+      };
 
     return (
         <div className="border-b border-neutral-200">
@@ -19,11 +41,9 @@ const Navbar = () => {
                                     Enter to PetVet
                                 </button>
                             </Link>
-                            <Link to="/">
-                                <button className="rounded-md text-sm font-semibold p-1 px-2 transition-all text-white bg-black hover:bg-neutral-700">
+                                <button onClick={handleLogout} className="rounded-md text-sm font-semibold p-1 px-2 transition-all text-white bg-black hover:bg-neutral-700">
                                     Sign Out
                                 </button>
-                            </Link>
                         </>
                     ) : (
                         <>
@@ -41,7 +61,7 @@ const Navbar = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Navbar

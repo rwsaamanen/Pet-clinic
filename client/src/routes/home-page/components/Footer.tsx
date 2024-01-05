@@ -1,3 +1,5 @@
+// Footer
+
 export const Footer = () => {
   return (
     <div className="border-t">
@@ -15,5 +17,5 @@ export const Footer = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

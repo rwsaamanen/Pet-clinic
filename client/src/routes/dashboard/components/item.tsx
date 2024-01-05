@@ -1,22 +1,10 @@
+import { cn } from "../../../lib/utils";
+import { Skeleton } from "../../../components/ui/skeleton";
 import {
   ChevronDown,
   ChevronRight,
   LucideIcon,
-  MoreHorizontal,
-  Plus,
-  Trash
 } from "lucide-react";
-
-import { cn } from "../../../lib/utils";
-import { Skeleton } from "../../../components/ui/skeleton";
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator
-} from "../../../components/ui/dropdown-menu";
 
 interface ItemProps {
   id?: string;
@@ -32,6 +20,8 @@ interface ItemProps {
   petList?: string[];
 }
 
+// Item
+
 export const Item = ({
   label,
   onClick,
@@ -44,7 +34,12 @@ export const Item = ({
   expanded,
   petList = [],
 }: ItemProps) => {
+
+  // Check if the label matches any pet name in the pet list.
+
   const isPetName = petList.includes(label);
+
+  // Handler for expanding/collapsing an item.
   
   const handleExpand = (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -112,5 +107,5 @@ Item.Skeleton = function ItemSkeleton({ level }: { level?: number }) {
       <Skeleton className="h-4 w-4" />
       <Skeleton className="h-4 w-[30%]" />
     </div>
-  )
-}
+  );
+};

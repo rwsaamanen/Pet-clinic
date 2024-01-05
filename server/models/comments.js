@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+// commentSchema
+
 const commentSchema = new mongoose.Schema({
     petId: {
         type: mongoose.Schema.Types.ObjectId,

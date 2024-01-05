@@ -1,10 +1,12 @@
-import logo from './../assets/icons/logo.png'
+import petLogo from './../assets/icons/logo.png'
+
+// Logo
 
 export const Logo = () => {
   return (
     <div className="md:flex items-center gap-x-2">
       <img
-        src={logo}
+        src={petLogo}
         height="25"
         width="25"
         alt="Logo"
@@ -13,5 +15,5 @@ export const Logo = () => {
         PetVet
       </p>
     </div>
-  )
-}
+  );
+};

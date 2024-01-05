@@ -1,14 +1,18 @@
+import axios from 'axios';
+import { useState } from "react";
+import { Label } from "../../components/ui/label";
+import { useVisit } from "../../hooks/use-visit";
 import {
     Dialog,
     DialogContent,
     DialogHeader
 } from "../../components/ui/dialog";
-import { useVisit } from "../../hooks/use-visit";
-import { Label } from "../../components/ui/label";
-import { useState } from "react";
+
+// AddVisitModal
 
 export const AddVisitModal = () => {
     const [visitDate, setVisitDate] = useState('');
+    const [comment, setComment] = useState('');
 
     const visit = useVisit();
     if (!visit.isOpen || !visit.pet) {
@@ -17,49 +21,51 @@ export const AddVisitModal = () => {
 
     const handleAddVisit = async () => {
 
-        // Logs
-
         if (!visitDate) {
-            console.log('Please select a date for the visit.');
             return;
         }
-    
+
         if (!visit.pet) {
-            console.error('No pet data available.');
             return;
         }
-    
+
         try {
             const token = localStorage.getItem('token');
             if (!token) {
                 console.error('Authentication token not found.');
                 return;
             }
-    
-            const response = await fetch('http://localhost:5000/api/visits', {
-                method: 'POST',
+
+            const response = await axios.post('http://localhost:5000/api/visits', {
+                petId: visit.pet._id,
+                date: visitDate,
+                comment: comment
+            }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    petId: visit.pet._id,
-                    date: visitDate,
-                    comment: ''
-                })
+                }
             });
-    
-            const responseData = await response.json();
-            if (!response.ok) {
-                throw new Error(responseData.message || 'Failed to add visit');
+
+            if (response.status === 200) {
+                const responseData = response.data;
+                console.log('Visit added:', responseData);
+                visit.onClose();
+            } else {
+                throw new Error(response.data.message || 'Failed to add visit');
             }
-    
-            console.log('Visit added:', responseData);
-            visit.onClose();
         } catch (error) {
             console.error('Error adding visit:', error);
         }
     };
+
+    // Enable only for future appointments.
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const minDate = `${year}-${month}-${day}`;
 
     return (
         <Dialog open={visit.isOpen} onOpenChange={visit.onClose}>
@@ -76,9 +82,18 @@ export const AddVisitModal = () => {
                             type="date"
                             value={visitDate}
                             onChange={(e) => setVisitDate(e.target.value)}
+                            min={minDate}
                             className="text-muted-foreground p-2 border border-gray-300 rounded"
                         />
                     </div>
+                </div>
+                <div className="flex flex-col gap-y-1">
+                    <Label>Add Additional Comments</Label>
+                    <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        className="text-muted-foreground p-2 border border-gray-300 rounded"
+                    />
                 </div>
                 <button
                     onClick={handleAddVisit}
