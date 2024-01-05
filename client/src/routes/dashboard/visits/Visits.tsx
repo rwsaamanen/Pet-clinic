@@ -2,7 +2,8 @@ import axios from 'axios';
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { Separator } from "../../../components/ui/separator";
-import { formatDate } from "../../../components/shared/FormatTime";
+import { formatDate } from "../../../components/shared/FormatDate";
+import { useNavigate } from 'react-router-dom';
 
 interface Pet {
     _id: string;
@@ -21,6 +22,7 @@ export function Visits() {
     const [upcomingVisits, setUpcomingVisits] = useState<Visit[]>([]);
     const [pastVisits, setPastVisits] = useState<Visit[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchVisits = async () => {

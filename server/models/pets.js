@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import commentSchema from './comments.js';
 
 const petSchema = new mongoose.Schema({
     ownerId: {
@@ -25,9 +26,8 @@ const petSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    comments: [{
-        type: String
-    }]
+    doctorComments: [commentSchema],
+    publicComments: [commentSchema]
 });
 
 const Pet = mongoose.model('Pet', petSchema);

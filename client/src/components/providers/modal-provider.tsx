@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { SettingsModal } from "../../components/modals/settings-modal";
-import { AddVisitModal } from "../../components/modals/add-visit-modal";
+import { SettingsModal } from "../modals/settings-modal";
+import { AddVisitModal } from "../modals/add-visit-modal";
+import { EditPetDetails } from "../modals/edit-pet-details-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -13,11 +14,12 @@ export const ModalProvider = () => {
   if (!isMounted) {
     return null;
   }
-  
+
   return (
     <>
-      <SettingsModal />
       <AddVisitModal />
+      <EditPetDetails />
+      <SettingsModal />
     </>
   );
 };

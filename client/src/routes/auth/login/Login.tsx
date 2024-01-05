@@ -20,7 +20,7 @@ const Login = () => {
     const loginData = { email, password };
 
     // Send HTTP request to your backend API
-    
+
     try {
       const response = await fetch('http://localhost:5000/api/users/login', {
         method: 'POST',
@@ -36,11 +36,18 @@ const Login = () => {
       if (response.ok) {
         console.log('Login successful:', data);
         localStorage.setItem('token', data.token);
-        saveUserDetails({ 
-          email: data.result.email, 
-          name: data.result.name, 
+        saveUserDetails({
+          email: data.result.email,
+          name: data.result.name,
           id: data.result.id
-      });
+        });
+
+        const userDetails = {
+          id: data.result.id,
+          role: data.result.role
+        };
+        localStorage.setItem('userDetails', JSON.stringify(userDetails));
+
         setTimeout(() => navigate('/dashboard'), 100);
       } else {
         console.error('Login failed:', data.message);
