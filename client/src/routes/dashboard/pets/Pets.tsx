@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Separator } from "../../../components/ui/separator";
 import { Search } from "lucide-react";
 import { capitalize } from "../../../components/shared/Capitalize";
-import { formatDate } from "../../../components/shared/FormatTime";
+import { formatDate } from "../../../components/shared/FormatDate";
+import { useNavigate } from "react-router-dom";
 
 interface Pet {
   _id: string;
@@ -15,6 +16,7 @@ interface Pet {
 export function Pets() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const filteredPets = pets.filter(pet => {
     const petName = pet.name.toLowerCase();
@@ -69,6 +71,13 @@ export function Pets() {
     fetchPets();
   }, []);
 
+  const onRedirect = (petId: string) => {
+    const pet = pets.find(p => p._id === petId);
+    if (pet) {
+      navigate(`/dashboard/pets/${petId}`, { state: { pet } });
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="mx-auto max-w-5xl pb-12 px-4 text-primary w-full">
@@ -100,7 +109,7 @@ export function Pets() {
           </div>
         </div>
 
-        <div className="px-6 font-sans lg:py-0 border rounded-lg bg-white shadow-lg mt-8 cursor-default text-sm text-neutral-500">
+        <div className="text-black px-6 font-sans lg:py-0 border rounded-lg bg-white shadow-lg mt-8 cursor-default text-sm">
           <div className="p-2">
             <table className="w-full border-collapse text-left">
               <thead className=" border-slate-300/10 last:border-none">
@@ -119,17 +128,17 @@ export function Pets() {
                   </th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredPets.map((pet, index) => (
+              <tbody className='text-neutral-600 font-semibold'>
+                {filteredPets.map((pet) => (
                   <tr key={pet._id}>
-                    <td className={`py-6 pr-8 hover:text-black cursor-pointer ${index !== pets.length - 1 ? 'border-b' : ''}`}>{capitalize(pet.name)}</td>
-                    <td className={`py-6 pr-8 ${index !== pets.length - 1 ? 'border-b' : ''}`}>{formatDate(pet.dob)}</td>
-                    <td className={`hidden py-6 pr-8 lg:table-cell ${index !== pets.length - 1 ? 'border-b' : ''}`}>
+                    <td onClick={() => onRedirect(pet._id)} className='py-6 pr-8 hover:text-black hover:underline cursor-pointer'>{capitalize(pet.name)}</td>
+                    <td className='py-6 pr-8'>{formatDate(pet.dob)}</td>
+                    <td className='hidden py-6 pr-8 lg:table-cell'>
                       <span className={`rounded-full px-3 py-1 text-xs font-medium leading-5 text-white ${pet.status.toLowerCase() === 'deceased' ? 'bg-red-500/90' : 'bg-green-500/90'}`}>
                         {capitalize(pet.status)}
                       </span>
                     </td>
-                    <td className={`hidden py-6 pr-8 lg:table-cell ${index !== pets.length - 1 ? 'border-b' : ''}`}>{capitalize(pet.petType)}</td>
+                    <td className='hidden py-6 pr-8 lg:table-cell'>{capitalize(pet.petType)}</td>
                   </tr>
                 ))}
               </tbody>

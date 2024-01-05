@@ -47,7 +47,6 @@ export const PetList = ({ level = 0, showPetsInitially = false }: PetListProps) 
   };
 
   useEffect(() => {
-    console.log('Fetching pets...');
 
     const fetchPets = async () => {
       try {
@@ -57,8 +56,6 @@ export const PetList = ({ level = 0, showPetsInitially = false }: PetListProps) 
           return;
         }
 
-        console.log('Token found:', token);
-
         const response = await axios.get("http://localhost:5000/api/pets", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -66,7 +63,6 @@ export const PetList = ({ level = 0, showPetsInitially = false }: PetListProps) 
         });
 
         const petData = response.data;
-        console.log("API Response:", petData);
 
         if (Array.isArray(petData)) {
           const petNames = petData.map((pet) => pet.name);
@@ -93,9 +89,6 @@ export const PetList = ({ level = 0, showPetsInitially = false }: PetListProps) 
       navigate(`/dashboard/pets/${petId}`, { state: { pet } });
     }
   };
-
-  console.log("AAAAA" + petList)
-
 
   return (
     <>

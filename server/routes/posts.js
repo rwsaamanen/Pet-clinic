@@ -3,7 +3,7 @@ import auth from './middleware.js';
 import { 
     getPets, createPet, updatePet,
     getUsers, createUser, updateUser, login,
-    getVisits, createVisit, updateVisit
+    getVisits, createVisit, updateVisit, addPetComment, getPetComments, removePetComment
 } from '../controllers/controller.js';
 
 const router = express.Router();
@@ -13,6 +13,12 @@ const router = express.Router();
 router.get('/pets', auth, getPets);
 router.post('/pets', auth, createPet);
 router.put('/pets/:id', auth, updatePet);
+
+// Comments routes
+
+router.get('/pets/:petId/comments', auth, getPetComments);
+router.post('/pets/comment', auth, addPetComment);
+router.delete('/pets/comments/:commentId/:petId', auth, removePetComment);
 
 // User routes
 
