@@ -2,9 +2,10 @@
 
 The final project is an innovative web application designed as a Pet Clinic management system. It offers a user-friendly interface, developed in React with TypeScript for the front-end, ensuring a seamless experience for pet owners and veterinarians. The back-end is powered by Node.js and Express. This system allows pet owners to register their pets, while veterinarians can securely add private medical notes accessible only to medical staff. Additionally, vets can share public remarks with pet owners regarding their pet's health. For data storage and management, the application utilizes MongoDB, a flexible and scalable database. This choice complements the application's focus on efficient data retrieval and management, key aspects in the seamless operation of our pet clinic services.
 
-## Demo
+## Demo Video about the application
 
-https://github.com/rwsaamanen/pet-clinic/assets/98338543/1ce4136e-f14d-4f91-b417-b7820b663dfe
+https://github.com/rwsaamanen/pet-clinic/assets/98338543/7221b239-200d-4b8b-a203-92e81e94933b
+
 
 ## Management system
 
