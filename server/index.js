@@ -17,7 +17,7 @@ app.get('/', (req, res) => {
     res.send('App is running...');
 });
 
-const CONNECTION_URL = process.env.MONGODB_URI;
+const CONNECTION_URL = 'mongodb+srv://rwsaamanen:YJcmoo8BYcrerg4A@cluster0.5bgk69q.mongodb.net/?retryWrites=true&w=majority';
 const PORT = process.env.PORT || 5000;
 
 mongoose.connect(CONNECTION_URL)
