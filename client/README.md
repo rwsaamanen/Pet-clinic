@@ -1,3 +1,15 @@
+# Pet Clinic | FrontEnd
+
+## Libraries
+
+Libraries used in this project
+
+- Zod ( React Hook Form )
+- Axios
+- Zustand
+- Tailwind CSS
+- React routers
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
