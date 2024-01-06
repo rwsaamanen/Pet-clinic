@@ -13,6 +13,9 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 
 app.use('/api', postRoutes);
+app.get('/', (req, res) => {
+    res.send('App is running...');
+});
 
 const CONNECTION_URL = process.env.MONGODB_URI;
 const PORT = process.env.PORT || 5000;
