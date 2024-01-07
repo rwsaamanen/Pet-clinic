@@ -102,9 +102,6 @@ In client directory run this:
   npm install npm@latest -g
   ```
 
-  NOTE*
-To run the backend, you'll need a connection to Vaasa's University of Applied Sciences.
-
 ### Installation
 
 1. Clone the repo:
